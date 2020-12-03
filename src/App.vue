@@ -1,10 +1,7 @@
 <template>
   <div id="app">
-    <Header 
-      active="home" 
-
+    <Header  
       @showlogin="showLogin()"
-      @showsignup="showSignUp()"
       class="sticky top-0" 
     />
 
@@ -22,11 +19,29 @@
       </aside>
     </section>
 
+    <section>
+      <modal name="login"
+         :width="modalWidth"
+         :height="'auto'"
+         :adaptive="true">
+        <Login @showsignup="showSignUp()" @login="login()" />
+      </modal>
+
+      <modal name="signup"
+         :width="modalWidth"
+         :height="'auto'"
+         :adaptive="true">
+        <SignUp @showlogin="showLogin()"  @signup="signup()"/>
+      </modal>
+    </section>
+
     <Footer />
   </div>
 </template>
 
 <script>
+import {mapState, mapGetters, mapActions} from 'vuex';
+
 import Header from '@/components/Header.vue';
 import AsideLeft from "@/components/AsideLeft.vue"
 import AsideRight from "@/components/AsideRight.vue"
@@ -41,6 +56,9 @@ export default {
     AsideLeft,
     AsideRight,
     Footer,
+
+    Login,
+    SignUp,
   },
 
   data() {
@@ -50,27 +68,41 @@ export default {
   },
 
   mounted() {
-    this.showLogin();
+
+  },
+
+  computed: {
+    ...mapState(['loggedIn']),
+
+    modalWidth: function() {
+      return (screen.width <= 768)? 310: 700;
+    }
   },
 
   methods: {
     showLogin() {
-      this.$modal.show(
-        Login,
-        { text: 'This text is a login prop' },
-        // { draggable: true }
-      )
+      this.$modal.hide('signup');
+      if (!this.loggedIn) {
+        this.$modal.show('login');
+      }
     },
 
     showSignUp() {
-      this.$modal.show(
-        SignUp,
-        { text: 'This text is a signup prop' },
-        // { draggable: true }
-      )
+      this.$modal.hide('login');
+      if (!this.loggedIn) {
+        this.$modal.show('signup');
+      }
     },
 
+    login(d) {
+      console.log('Login started');
+      this.$modal.hide('login');
+    },
 
+    signup() {
+      this.$modal.hide('signup');
+      console.log('Signup started');
+    },
   }
 }
 </script>

@@ -12,7 +12,7 @@
         </div>
 
         <h1 class="w-10/12 md:leading-tight xs:leading-none font-bold md:-mt-4 xs:-mt-1">
-          <span class="text-unidark md:text-5xl xs:text-xl">ZenPens</span><br>
+          <span class="text-black md:text-5xl xs:text-xl">ZenPens</span><br>
           <small class="italic text-green-200 md:text-md xs:text-xs text-shadow">... the addicted writers ...</small>
         </h1>
       </a>
@@ -43,47 +43,42 @@
           <a
             href="/"
             class="lg:p-3 xs:py-4 xs:px-4 xs:flex xs:justify-start xs:space-x-3 lg:space-x-0 block lg:mt-4 lg:inline-block lg:mt-0 text-unidark hover:border-b-2"
-            :class="active === 'home' ? 'active' : 'notActive'"
+            :class="activeHeader === 'home' ? 'active' : 'notActive'"
           >
-            <i class="fa fa-home  mt-1 lg:hidden"></i><span>Home</span>
+            <i class="far fa-compass  mt-1 lg:hidden"></i><span>Explore</span>
           </a>
-          <a
-            href="/process"
-            class="lg:p-3 xs:py-4 xs:px-4 xs:flex xs:justify-start xs:space-x-3 lg:space-x-0 block lg:mt-4 lg:inline-block lg:mt-0 text-unidark hover:border-b-2"
-            :class="active === 'process' ? 'active' : 'notActive'"
-          >
-            <i class="fa fa-user-cog  mt-1 lg:hidden"></i><span>How it Works</span>
-          </a>
-          <a
-            href="/hostels"
-            class="lg:p-3 xs:py-4 xs:px-4 xs:flex xs:justify-start xs:space-x-3 lg:space-x-0 block lg:mt-4 lg:inline-block lg:mt-0 text-unidark hover:border-b-2"
-            :class="active === 'hostels' ? 'active' : 'notActive'"
-          >
-            <i class="fa fa-person-booth  mt-1 lg:hidden"></i><span>Book Space</span>
-          </a>
+          
           <a
             href="/contact"
             class="lg:p-3 xs:py-4 xs:px-4 xs:flex xs:justify-start xs:space-x-3 lg:space-x-0 block lg:mt-4 lg:inline-block lg:mt-0 text-unidark hover:border-b-2"
-            :class="active === 'contact' ? 'active' : 'notActive'"
+            :class="activeHeader === 'contact' ? 'active' : 'notActive'"
           >
             <i class="fa fa-phone-alt lg:hidden mt-1"></i><span>Contact</span>
           </a>
+
           <a
             href="/faq"
             class="lg:p-3 xs:py-4 xs:px-4 xs:flex xs:justify-start xs:space-x-3 lg:space-x-0 block lg:mt-4 lg:inline-block lg:mt-0 text-unidark hover:border-b-2"
-            :class="active === 'faq' ? 'active' : 'notActive'"
+            :class="activeHeader === 'faq' ? 'active' : 'notActive'"
           >
             <i class="fa fa-question mt-1 lg:hidden"></i><span>FAQ</span>
           </a>
-          <a
-            href="/login"
+
+          <button
             v-show="!loggedIn"
-            class="lg:p-3 xs:py-4 xs:px-4 xs:flex xs:justify-start block lg:mt-4 lg:inline-block lg:mt-0 text-unidark hover:border-b-2"
-            :class="(active === 'login' || active === 'signup') ? 'active' : 'notActive'"
+            @click="$emit('showlogin')"
+            class="lg:p-3 xs:py-4 xs:px-4 xs:flex xs:justify-start block lg:mt-4 lg:inline-block lg:mt-0 text-unidark hover:border-b-2 focus:outline-none"
+            :class="(activeHeader === 'login' || activeHeader === 'signup') ? 'active' : 'notActive'"
           >
-            <span v-if="active != 'signup'" class="xs:space-x-3 lg:space-x-0"><i class="fa fa-user mt-1 lg:hidden"></i><span>Login</span></span>
-            <span v-if="active == 'signup'" class="xs:space-x-3 lg:space-x-0"><i class="fa fa-user-plus mt-1 lg:hidden"></i><span>Sign Up</span></span>
-          </a>
+            <span v-if="activeHeader != 'signup'" class="xs:space-x-3 lg:space-x-0">
+              <i class="fa fa-user mt-1 lg:hidden"></i>
+              <span>Login</span>
+            </span>
+            <span v-if="activeHeader == 'signup'" class="xs:space-x-3 lg:space-x-0">
+              <i class="fa fa-user-plus mt-1 lg:hidden"></i>
+              <span>Sign Up</span>
+            </span>
+          </button>
         </div>
 
       </div>
@@ -99,21 +94,21 @@
 </template>
 
 <script>
-import ProfileMenu from "@/components/ProfileMenu.vue"
+import {mapState, mapGetters, mapActions} from 'vuex';
+import ProfileMenu from "@/components/ProfileMenu.vue";
 export default {
   name: "Header",
+
   components: {
     ProfileMenu
   },
-  props: {
-    active: {
-      type: String
-    }
+
+  computed: {
+    ...mapState(['loggedIn', 'activeHeader']),
   },
   data() {
     return {
       showMenu: false,
-      loggedIn: true,
     };
   },
   created(){

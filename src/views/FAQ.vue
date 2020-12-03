@@ -10,10 +10,26 @@
 </template>
 
 <script>
+import {mapState, mapMutations} from 'vuex';
 export default {
   name: 'FAQ',
   
   components: {
+
+  },
+
+  data() {
+    return {
+
+    }
+  },
+
+  mounted() {
+    this.setActiveHeader('faq')
+  },
+
+  methods: {
+    ...mapMutations(['setActiveHeader']),
 
   }
 }
