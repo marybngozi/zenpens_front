@@ -1,20 +1,19 @@
 <template>
   <section class="lg:p-10 flex xs:flex-col lg:flex-row h-full w-full">
-
-    <div class="lg:w-7/12 xs:w-12/12 p-5 lg:border-r-2 xs:border-r-0 lg:border-b-0 xs:border-b-2 relative">
+    <div class="lg:w-7/12 xs:w-12/12 pb-5 px-5 pt-0 lg:border-r-2 xs:border-r-0 lg:border-b-0 xs:border-b-2 relative">
       <div class="mb-5 text-center">
         <h1 class="font-light text-center text-3xl">LOGIN</h1>
 
         <small class="text-xs text-unidark">Don't have an account? 
-          <button @click="showSignup()" class="border-b-2 border-black">Register</button> 
+          <router-link to="/signup" class="border-b-2 border-black">Register</router-link> 
         </small>
       </div>
 
       <form action="#" @submit.prevent >
         <div class="mb-5">
-          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="text" name="email" id="email" autocomplete="email" placeholder="emmadoe@mail.com" v-model.trim="$v.loginForm.email.$model"  :class="{'is-invalid':$v.loginForm.email.$error}"
-          class="mt-1 p-2 bg-transparent focus:outline-none focus:ring focus:border-unidark block w-full sm:text-sm border border-unidarkblue rounded-md">
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input type="text" name="username" id="username" autocomplete="username" placeholder="emmadoe  or  emmadoe@mail.com" v-model.trim="$v.loginForm.username.$model"  :class="{'is-invalid':$v.loginForm.username.$error}"
+          class="mt-1 p-2 bg-transparent focus:outline-none  focus:border-unidark block w-full sm:text-sm border border-unidarkblue rounded-md">
         </div>
 
         <div class="mb-5">
@@ -25,12 +24,10 @@
 
             <input v-if="!showPassword" type="password" name="password" id="password" 
             v-model.trim="$v.loginForm.password.$model"
-            :class="{'is-invalid':$v.loginForm.password.$error}"
             class="focus:outline-none bg-transparent border-0 w-full outline-none" placeholder="********">
 
             <input v-else type="text" name="password" id="password" 
             v-model.trim="$v.loginForm.password.$model"
-            :class="{'is-invalid':$v.loginForm.password.$error}"
             placeholder="qwerY123@StrongU"
             class="focus:outline-none bg-transparent border-0 w-full outline-none">
 
@@ -44,21 +41,21 @@
 
         <div class="flex items-center justify-between mb-8">
           <div class="flex items-center">
-            <input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 xs:h-3 xs:w-3 text-unidarkblue focus:ring-unidark border-gray-300 rounded">
+            <input id="remember_me" name="remember_me" v-model="remember_me" type="checkbox" class="h-4 w-4 xs:h-3 xs:w-3 text-unidarkblue focus:ring-unidark border-gray-300 rounded">
             <label for="remember_me" class="ml-2 block text-sm xs:text-xs text-gray-900">
               Remember me
             </label>
           </div>
 
           <div class="text-sm">
-            <a href="#" class="font-medium text-unilightblue text-sm xs:text-xs hover:text-unidarkblue">
+            <router-link to="/forgot-password" class="font-medium text-unilightblue text-sm xs:text-xs hover:text-unidarkblue">
               Forgot your password?
-            </a>
+            </router-link>
           </div>
         </div>
 
         <div>
-          <button type="submit" @click.prevent="login()" class="group relative w-full text-center py-2 px-4 border border-transparent text-sm font-light rounded-md text-white bg-unidarkblue hover:bg-unidark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-unidark">
+          <button type="submit" :disabled="$v.loginForm.$invalid || this.$v.loginForm.$error" @click.prevent="login()" class="disabled:opacity-50 group relative w-full text-center py-2 px-4 border border-transparent text-sm font-light rounded-md text-white bg-unidarkblue hover:bg-unidark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-unidark">
             LOGIN
           </button>
         </div>
@@ -86,6 +83,7 @@
 </template>
 
 <script>
+import {mapMutations, mapActions} from 'vuex';
 import { required, email, minLength} from 'vuelidate/lib/validators';
 export default {
   name: 'Login',
@@ -93,16 +91,17 @@ export default {
   data() {
     return {
       loginForm: {
-        email: null,
+        username: null,
         password: null,
       },
+      remember_me: false,
       showPassword: false,
     }
   },
 
   validations: {
     loginForm: {
-      email: { required, email },
+      username: { required },
       password: {
         required,
         minLength: minLength(8),
@@ -110,13 +109,61 @@ export default {
     }
   },
 
-  methods: {
-    showSignup() {
-      this.$emit('showsignup');
-    },
+  mounted() {
+    this.setActiveHeader('login');
 
-    login() {
-      this.$emit('login', this.loginForm);
+    const storageCheck = localStorage.getItem('rem_checkbox');
+    this.remember_me = (storageCheck === null)? false : (storageCheck === 'false')? false : true;
+    
+    this.loginForm.username = localStorage.getItem('rem_username') || null;
+  },
+
+  methods: {
+    ...mapMutations(["setLoginStat", "setActiveHeader"]),
+
+    ...mapActions(["addToken", "addUserDetails"]),
+
+    async login() {
+      // checks if inputs are filled well
+      this.$v.loginForm.$touch()
+      if (this.$v.loginForm.$invalid || this.$v.loginForm.$error) {
+        this.$toastr.e("All fields required");
+        return;
+      }
+
+      localStorage.setItem('rem_checkbox', this.remember_me);
+      if (this.remember_me) {
+        // implement remember me functionality
+        localStorage.setItem('rem_username', this.loginForm.username);
+      }else{
+        localStorage.removeItem('rem_username');
+      }
+
+      try {
+        const res = await this.$http.post(`${this.$apiV1}/user/login`, this.loginForm);
+
+        // add user details in store and localstorage
+        this.addUserDetails(res.data.data.user);
+        
+        // add token in store and localstorage
+        this.addToken(res.data.data.auth.token);
+        
+        // set loggedIn as true in the store
+        this.setLoginStat(true);
+
+        // console.log(res);
+        this.$toastr.s(res.data.message);
+        
+        // go to the next page
+        const nexturl = localStorage.getItem('einex');
+        
+        localStorage.removeItem('einex');
+
+        this.$router.push({ path: nexturl || '/' })
+      } catch (e) {
+        console.log('User login');
+        this.reqErrorHandler({e});
+      }
     },
   }
 }
@@ -138,5 +185,5 @@ export default {
     left: 0px;
     opacity: 0.25;
   } 
- 
+  
 </style>

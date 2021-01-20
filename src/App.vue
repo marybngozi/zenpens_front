@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-    <Header  
-      @showlogin="showLogin()"
+    <Header
       class="sticky top-0" 
     />
 
@@ -19,36 +18,17 @@
       </aside>
     </section>
 
-    <section>
-      <modal name="login"
-         :width="modalWidth"
-         :height="'auto'"
-         :adaptive="true">
-        <Login @showsignup="showSignUp()" @login="login()" />
-      </modal>
-
-      <modal name="signup"
-         :width="modalWidth"
-         :height="'auto'"
-         :adaptive="true">
-        <SignUp @showlogin="showLogin()"  @signup="signup()"/>
-      </modal>
-    </section>
-
     <Footer />
   </div>
 </template>
 
 <script>
-import {mapState, mapGetters, mapActions} from 'vuex';
+import {mapState, mapActions} from 'vuex';
 
 import Header from '@/components/Header.vue';
 import AsideLeft from "@/components/AsideLeft.vue"
 import AsideRight from "@/components/AsideRight.vue"
 import Footer from "@/components/Footer.vue";
-
-import Login from '@/components/Login.vue';
-import SignUp from '@/components/SignUp.vue';
 
 export default {
   components: {
@@ -56,53 +36,40 @@ export default {
     AsideLeft,
     AsideRight,
     Footer,
-
-    Login,
-    SignUp,
   },
 
   data() {
     return {
-      userLoggedIn: null,
+      // userLoggedIn: null,
     }
   },
 
-  mounted() {
+  created() {
+    this.updateUserDetails();
 
+    this.updateToken();
   },
 
   computed: {
     ...mapState(['loggedIn']),
-
-    modalWidth: function() {
-      return (screen.width <= 768)? 310: 700;
-    }
   },
 
   methods: {
-    showLogin() {
-      this.$modal.hide('signup');
-      if (!this.loggedIn) {
-        this.$modal.show('login');
-      }
-    },
-
-    showSignUp() {
-      this.$modal.hide('login');
-      if (!this.loggedIn) {
-        this.$modal.show('signup');
-      }
-    },
-
-    login(d) {
-      console.log('Login started');
-      this.$modal.hide('login');
-    },
-
-    signup() {
-      this.$modal.hide('signup');
-      console.log('Signup started');
-    },
+    ...mapActions(["updateToken", "updateUserDetails"]),
   }
 }
 </script>
+
+<style>
+  .is-invalid {
+    border: 1px solid red !important;
+  }
+  
+  /* for browser autocomplete */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active  {
+    transition: background-color 5000s ease-in-out 0s;
+  }
+</style>

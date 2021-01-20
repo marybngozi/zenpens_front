@@ -10,15 +10,28 @@ import Vuelidate from  'vuelidate';
 import VueToastr from "vue-toastr";
 import moment from 'moment';
 import VModal from 'vue-js-modal'
+import ErrorHandler from './utlis/errorHandler'
+import Axiosinterceptors from './utlis/interceptors'
 import "@/assets/css/tailwind.css";
 
 Vue.prototype.$http = axios;
 Vue.prototype.$moment = moment;
+Vue.prototype.$domainUrl = window.location.origin;
+Vue.prototype.$apiV1 = 'http://localhost:8008/v1';
 
-Vue.use(Vuelidate)
-Vue.use(VueToastr, {});
-Vue.use(VModal)
+Vue.use(Vuelidate);
+Vue.use(VueToastr, {
+  onCreated: ()=>{
+    this.$toastr.removeByType('error');
+    this.$toastr.removeByType('success');
+  },
+});
+Vue.use(VModal);
+Vue.use(ErrorHandler);
 Vue.config.productionTip = false
+
+// adds token to every axios http request
+Axiosinterceptors();
 
 new Vue({
   router,
