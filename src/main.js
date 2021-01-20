@@ -17,7 +17,9 @@ import "@/assets/css/tailwind.css";
 Vue.prototype.$http = axios;
 Vue.prototype.$moment = moment;
 Vue.prototype.$domainUrl = window.location.origin;
-Vue.prototype.$apiV1 = 'http://localhost:8008/v1';
+
+Vue.prototype.$apiV1 = 'https://zenpens.herokuapp.com/v1';
+// Vue.prototype.$apiV1 = 'http://localhost:8008/v1';
 
 Vue.use(Vuelidate);
 Vue.use(VueToastr, {
